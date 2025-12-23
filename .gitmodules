@@ -1,0 +1,3 @@
+[submodule "lib/sendspin-js"]
+	path = lib/sendspin-js
+	url = https://github.com/tthomas48/sendspin-js.git

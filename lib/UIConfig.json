@@ -1,0 +1,35 @@
+{
+  "page": {
+    "label": "TRANSLATE.SENDSPIN.PAGE_LABEL",
+    "title": "TRANSLATE.SENDSPIN.PAGE_TITLE",
+    "description": "TRANSLATE.SENDSPIN.PAGE_DESCRIPTION"
+  },
+  "sections": [
+    {
+      "id": "general",
+      "element": "section",
+      "label": "TRANSLATE.SENDSPIN.SECTION_GENERAL",
+      "icon": "fa-cog",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "audio_interface/sendspin",
+        "method": "saveConfiguration"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SENDSPIN.BUTTON_SAVE",
+        "data": [
+          "enabled"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "label": "TRANSLATE.SENDSPIN.ENABLED_LABEL",
+          "doc": "TRANSLATE.SENDSPIN.ENABLED_DOC",
+          "value": true
+        }
+      ]
+    }
+  ]
+}

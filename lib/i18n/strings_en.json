@@ -1,0 +1,19 @@
+{
+  "SENDSPIN": {
+    "PAGE_LABEL": "Sendspin",
+    "PAGE_TITLE": "Sendspin Client/Player",
+    "PAGE_DESCRIPTION": "Configure Sendspin Protocol client settings. This plugin connects to Sendspin servers (e.g. Music Assistant) to receive audio streams.",
+    "SECTION_GENERAL": "General Settings",
+    "BUTTON_SAVE": "Save",
+    "ENABLED_LABEL": "Enable Sendspin Client",
+    "ENABLED_DOC": "Enable or disable the Sendspin Protocol client. When enabled, this device will connect to Sendspin servers and receive audio streams.",
+    "PORT_LABEL": "Server Address (Optional)",
+    "PORT_DOC": "Manual server address (host:port). Leave blank to auto-discover servers via mDNS.",
+    "DEVICE_NAME_LABEL": "Player Name",
+    "DEVICE_NAME_DOC": "Name displayed to Sendspin servers when discovering this player",
+    "DEVICE_NAME_PLACEHOLDER": "Enter player name"
+  }
+}
+
+
+
