@@ -28,7 +28,8 @@
     "v-conf": "^1.4.0",
     "ws": "^8.18.0",
     "multicast-dns": "^7.2.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "opus-decoder": "^0.7.11"
   },
   "optionalDependencies": {
     "@discordjs/opus": "^0.10.0"

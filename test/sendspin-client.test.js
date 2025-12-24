@@ -150,9 +150,17 @@ describe('SendspinClient', () => {
       });
       mockMdnsInstance.query = jest.fn();
 
+      // Override shouldReconnect getter to return false
+      // This prevents reconnection scheduling and allows rejection
+      Object.defineProperty(client, 'shouldReconnect', {
+        get: () => false,
+        set: () => {}, // Ignore sets
+        configurable: true
+      });
+
       const startPromise = client.start();
       
-      // Should timeout and reject
+      // Should timeout and reject (since reconnection is disabled)
       await expect(startPromise).rejects.toThrow(/No server found|timeout/i);
     }, 10000);
 
@@ -192,14 +200,16 @@ describe('SendspinClient', () => {
     });
 
     it('should handle connection errors', async () => {
-      let errorHandler;
-      
-      // Mock WebSocket to fail on connection
+      // Mock WebSocket to fail on connection by triggering error event immediately
       WebSocket.mockImplementationOnce((url) => {
         const ws = {
           on: jest.fn((event, handler) => {
             if (event === 'error') {
-              errorHandler = handler;
+              // Trigger error asynchronously after a short delay
+              setImmediate(() => {
+                const connectionError = new Error('Connection failed');
+                handler(connectionError);
+              });
             }
           }),
           send: jest.fn(),
@@ -214,20 +224,20 @@ describe('SendspinClient', () => {
         logger: mockLogger
       });
 
+      // Override shouldReconnect getter to return false
+      // This prevents reconnection scheduling and allows rejection
+      Object.defineProperty(client, 'shouldReconnect', {
+        get: () => false,
+        set: () => {}, // Ignore sets
+        configurable: true
+      });
+
       const startPromise = client.start();
       
-      // Wait for handlers to be registered, then trigger error
-      await new Promise(resolve => setImmediate(resolve));
-      
-      if (errorHandler) {
-        const connectionError = new Error('Connection failed');
-        errorHandler(connectionError);
-      }
-      
-      // The promise should reject with the connection error
+      // The promise should reject with the connection error (since reconnection is disabled)
       await expect(startPromise).rejects.toThrow('Connection failed');
       expect(mockLogger.error).toHaveBeenCalledWith(
-        '[SendspinClient] WebSocket error:',
+        '[SendspinClient] WebSocket error (during connection):',
         expect.any(Error)
       );
     });
@@ -344,7 +354,7 @@ describe('SendspinClient', () => {
       }), false);
 
       expect(clearSpy).toHaveBeenCalled();
-      expect(mockLogger.info).toHaveBeenCalledWith('[SendspinClient] Received stream/clear - buffers cleared');
+      expect(mockLogger.info).toHaveBeenCalledWith('[SendspinClient] Buffers cleared, ready for new chunks');
     });
 
     it('should handle server/command volume', () => {
@@ -548,7 +558,9 @@ describe('SendspinClient', () => {
         audioData
       ]);
 
+      // Wait for async decode and schedule
       await messageHandler(binaryMessage, true);
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(client.decoder.decode).toHaveBeenCalledWith(audioData);
       expect(scheduleSpy).toHaveBeenCalled();
@@ -562,7 +574,7 @@ describe('SendspinClient', () => {
       
       await messageHandler(shortMessage, true);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('[SendspinClient] Binary message too short');
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('[SendspinClient] Binary message too short'));
     });
   });
 

@@ -168,8 +168,13 @@ describe('Volumio Plugin Compliance', () => {
       // Make start fail
       mockClient.start.mockRejectedValue(new Error('Test error'));
 
-      await expect(controller.onStart()).rejects.toThrow('Test error');
-      // Should not crash the system - error is caught and thrown
+      // onStart() now catches errors and resolves to prevent crashes
+      // It logs the error but doesn't throw
+      await expect(controller.onStart()).resolves.toBeUndefined();
+      expect(mockContext.logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to start:'),
+        expect.any(String)
+      );
     });
 
     it('should stop correctly and disable functionality', async () => {

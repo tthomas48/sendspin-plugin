@@ -23,7 +23,8 @@ describe('AudioPlayer', () => {
       volumioAddToQueue: jest.fn().mockResolvedValue(undefined),
       volumioReplaceAndPlay: jest.fn().mockResolvedValue(undefined),
       volumioPlay: jest.fn().mockResolvedValue(undefined),
-      volumioStop: jest.fn().mockResolvedValue(undefined)
+      volumioStop: jest.fn().mockResolvedValue(undefined),
+      executeOnPlugin: jest.fn().mockResolvedValue(undefined)
     };
 
     // Mock HTTP server
@@ -112,7 +113,15 @@ describe('AudioPlayer', () => {
       // Wait a bit for async operations
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(mockCommandRouter.volumioAddToQueue).toHaveBeenCalled();
+      expect(mockCommandRouter.executeOnPlugin).toHaveBeenCalledWith(
+        'music_service',
+        'webradio',
+        'clearAddPlayTrack',
+        expect.objectContaining({
+          uri: expect.stringContaining('http://127.0.0.1'),
+          service: 'webradio'
+        })
+      );
     });
 
     it('should not start if already playing', async () => {

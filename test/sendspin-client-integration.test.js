@@ -193,7 +193,13 @@ describe('Sendspin Plugin Integration (Client Mode)', () => {
     it('should handle start errors', async () => {
       mockClient.start.mockRejectedValue(new Error('Start failed'));
 
-      await expect(controller.onStart()).rejects.toThrow('Start failed');
+      // onStart() now catches errors and resolves to prevent crashes
+      // It logs the error but doesn't throw
+      await expect(controller.onStart()).resolves.toBeUndefined();
+      expect(mockContext.logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to start:'),
+        expect.any(String)
+      );
     });
   });
 

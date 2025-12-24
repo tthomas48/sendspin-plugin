@@ -134,6 +134,7 @@ zip -r "$PLUGIN_ZIP" . \
     -x "*.swp" \
     -x "*.zip" \
     -x "*.tar.gz" \
+    -x "install-all.sh" \
     -x "lib/sendspin-js/src/*" \
     -x "lib/sendspin-js/tsconfig.json" \
     -x "lib/sendspin-js/.eslintrc*" \
@@ -282,6 +283,20 @@ PYTHON_EOF
 INSTALL_EOF
     then
         echo -e "${GREEN}✓ Installation on $IP complete!${NC}"
+        
+        # Restart Volumio
+        echo "Restarting Volumio..."
+        RESTART_CMD="ssh -o StrictHostKeyChecking=no"
+        if [ "$SSHPASS_AVAILABLE" = true ]; then
+            RESTART_CMD="sshpass -p '$VOLUMIO_SSH_PASSWORD' $RESTART_CMD"
+        fi
+        
+        if eval "$RESTART_CMD $SSH_USER@$IP 'sudo systemctl restart volumio'" 2>/dev/null; then
+            echo -e "${GREEN}✓ Volumio restart initiated on $IP${NC}"
+        else
+            echo -e "${YELLOW}⚠ Could not restart Volumio on $IP (may require manual restart)${NC}"
+        fi
+        
         ((SUCCESS_COUNT++))
     else
         echo -e "${RED}✗ Installation on $IP failed!${NC}"
@@ -300,10 +315,10 @@ echo ""
 
 if [ $SUCCESS_COUNT -gt 0 ]; then
     echo "Next steps:"
-    echo "1. Open each Volumio device in browser (http://<device-ip>)"
-    echo "2. Go to Plugins → My Plugins"
-    echo "3. Find Sendspin and click the power button to enable"
-    echo "4. Click Start if it doesn't start automatically"
+    echo "1. Wait for Volumio to restart (may take 30-60 seconds)"
+    echo "2. Open each Volumio device in browser: http://<device-ip>"
+    echo "3. Go to Plugins -> My Plugins"
+    echo "4. Find Sendspin and click the power button to enable (if not already enabled)"
     echo "5. Configure device names in plugin settings"
     echo ""
 fi
